@@ -9,13 +9,30 @@ where
 
 import Data.List (isPrefixOf)
 
--- |Given a list representing
--- a logical "separator", and a sequences of elements that may contain
--- this separator, return a list of the (possibly empty)
--- subsequences "between" instances
--- of the separator.  This is the inverse of `intercalate`:
---     intercalate s (stratify s l) == l
---     stratify s (intercalate s l) == l (when no element of l contains s)
+-- |Given a list representing a logical "separator", and a
+-- sequences of elements that may contain this separator,
+-- 'stratify' returns a list of the (possibly empty)
+-- subsequences "between" instances of the separator.
+-- 
+-- 'stratify' is the inverse of 'intercalate'.
+-- 	'intercalate' s ('stratify' s l) == l
+-- Also
+-- 	'stratify' s ('intercalate' s l) == l
+-- except in the cases where 'intercalate' loses
+-- information.  These are: when l == [[]]; when s == [];
+-- when s overlaps the elements of l in such a way as to
+-- add extra occurrences of s.
+-- 
+-- 	"Intercalated: A body of material interbedded or
+-- 	interlaminated with another."
+-- 
+-- 	"Stratified: A term applied to rocks deposited in
+-- 	nearly horizontal layers or strata on the earth's
+-- 	surface."
+-- 
+-- 	US Geological Survey Bulletin 587
+-- 	http://www.nps.gov/history/history/online_books/
+-- 	geology/publications/pp/587/glossary.htm	
 stratify :: (Eq a) => [a] -> [a] -> [[a]]
 stratify _ [] = []
 stratify [] l = map (:[]) l
