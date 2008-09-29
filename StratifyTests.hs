@@ -10,6 +10,7 @@ import Test.QuickCheck
 
 import Stratify
 
+main :: IO ()
 main = mapM_ (\(s,a) -> printf "%-25s: " s >> a) tests
  
 --- to ensure that the tests are meaningful, we embed
@@ -49,6 +50,7 @@ prop_stratify_intercalate s l =
           | concat l' == [] = s
           | otherwise = map ((+ (maximum . concat $ l')) . (+ 1) . abs) s
 
+tests :: [(String, IO ())]
 tests = [("intercalate.stratify/id", test prop_intercalate_stratify),
          ("stratify.intercalate/id", test prop_stratify_intercalate)]
          

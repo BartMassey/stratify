@@ -7,8 +7,6 @@
 module Stratify
 where
 
-import Data.List (isPrefixOf)
-
 -- |Given a list representing a logical \"separator\", and a
 -- list that may contain occurrences of this separator,
 -- 'stratify' returns a list of the (possibly empty)
@@ -46,8 +44,8 @@ stratify _ [] = []
 stratify [] l = map (:[]) l
 stratify sep l = go l where
     nsep = length sep
-    go l | l0 == sep = [] : go l1
-        where (l0, l1) = splitAt nsep l
+    go l' | l0 == sep = [] : go l1
+        where (l0, l1) = splitAt nsep l'
     go (c : cs) = (c : l0) : l1
         where (l0 : l1) = go cs
     go [] = [[]]
