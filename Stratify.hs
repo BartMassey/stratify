@@ -7,6 +7,8 @@
 module Stratify
 where
 
+import Data.List  
+
 -- |Given a list representing a logical \"separator\", and a
 -- list that may contain occurrences of this separator,
 -- 'stratify' returns a list of the (possibly empty)
@@ -23,12 +25,25 @@ where
 -- except in the cases where 'intercalate' loses
 -- information.  These are:
 -- 
---    (1) When @l == [[]]@
--- 
---    (2) When @s == []@
--- 
+--    (1) When @s == []@.
+--
+-- >        intercalate [] l == concat l
+--
+--        We choose
+--
+-- >        stratify [] l == [l]
+--
+--    (2) When @l == []@.  
+--
+-- >        intercalate s [] == intercalate s [[]] == []
+--
+--        We choose
+--
+-- >        stratify s [] == [[]]
+--
 --    (3) When @s@ overlaps the elements of @l@ in such a way as to
---        add extra occurrences of @s@.
+--        add extra occurrences of @s@.  We find occurrences of
+--        @s@ via an eager left-to-right scan.
 -- 
 -- \"Intercalated\: A body of material interbedded or
 -- interlaminated with another.\"
@@ -40,12 +55,9 @@ where
 -- \--US Geological Survey Bulletin 587
 -- <http://www.nps.gov/history/history/online_books/geology/publications/pp/587/glossary.htm>
 stratify :: (Eq a) => [a] -> [a] -> [[a]]
-stratify _ [] = []
-stratify [] l = map (:[]) l
-stratify sep l = go l where
-    nsep = length sep
-    go l' | l0 == sep = [] : go l1
-        where (l0, l1) = splitAt nsep l'
-    go (c : cs) = (c : l0) : l1
-        where (l0 : l1) = go cs
-    go [] = [[]]
+stratify [] l = [l]
+stratify _ [] = [[]]
+stratify s l@(e : es) =
+    case stripPrefix s l of
+      Nothing -> let (l0 : ls) = stratify s es in (e : l0) : ls
+      Just l' -> [] : stratify s l'

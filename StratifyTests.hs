@@ -29,10 +29,13 @@ prop_intercalate_stratify s l =
         fixup (n - 1) (l01 ++ s ++ l02)
 
 --- stratify can invert intercalate except when information
---  is lost by intercalate s l and there is thus no unique inverse.
---  This happens when:
----   1) s is [].  intercalate is just concat in this case.
----   2) l is [[]].  intercalate s [] = intercalate s [[]] == []
+--- is lost by intercalate s l and there is thus no unique inverse.
+--- This happens when:
+---   1) s is [].  intercalate [] l == concat l.  We
+---      choose stratify [] l = [l] .
+---   2) l is [] or [[]].  intercalate s [] ==
+---      intercalate s [[]] == [].  We choose
+---      stratify s [] = [[]], for compatibility with (1).
 ---   3) s "overlaps" intercalate s l.  This is true when
 ---      there are more than length l - 1 occurrences of s
 ---      in the intercalation, because the intercalation
@@ -42,7 +45,7 @@ prop_intercalate_stratify s l =
 
 prop_stratify_intercalate :: [Int] -> [[Int]] -> Property
 prop_stratify_intercalate s l =
-    s /= [] && l /= [[]] ==>
+    s /= [] && l /= [] ==>
     (stratify s' $ intercalate s' l') == l'
     where
       l' = map (map abs) l
