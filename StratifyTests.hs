@@ -5,8 +5,9 @@
 --- distribution of this software for license terms.
 
 import Data.List
-import Text.Printf
+import Data.Word
 import Test.QuickCheck
+import Text.Printf
 
 import Stratify
 
@@ -15,7 +16,7 @@ main = mapM_ (\(s,a) -> printf "%25s: " s >> a) tests
  
 --- to ensure that the tests are meaningful, we embed
 --- some number of occurrences of s in l before we start
-prop_intercalate_stratify :: [Int] -> [Int] -> Property
+prop_intercalate_stratify :: [Word] -> [Word] -> Property
 prop_intercalate_stratify s l =
     forAll l' $ \l'' -> (intercalate s $ stratify s l'') == l''
     where
@@ -42,15 +43,14 @@ prop_intercalate_stratify s l =
 ---      created new ones.  We ensure this to not be the
 ---      the case by preventing elements of s from overlapping
 ---      elements of concat l, which is unnecessarily strong.
-prop_stratify_intercalate :: NonEmptyList Int -> NonEmptyList [Int] -> Bool
+prop_stratify_intercalate :: NonEmptyList Word -> NonEmptyList [Word] -> Bool
 prop_stratify_intercalate (NonEmpty ss) (NonEmpty lss) =
-  stratify ss' (intercalate ss' lss') == lss'
+  stratify ss' (intercalate ss' lss) == lss
   where
-    lss' = map (map abs) lss
     ss'
-      | concat lss' == [] = ss
+      | concat lss == [] = ss
       | otherwise = 
-          map ((+ (maximum . concat $ lss')) . (+ 1) . abs) ss
+          map (+ (1 + maximum (concat $ lss))) ss
     
 tests :: [(String, IO ())]
 tests = [("intercalate.stratify/id", quickCheck prop_intercalate_stratify),
