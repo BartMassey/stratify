@@ -42,19 +42,17 @@ prop_intercalate_stratify s l =
 ---      created new ones.  We ensure this to not be the
 ---      the case by preventing elements of s from overlapping
 ---      elements of concat l, which is unnecessarily strong.
-
-prop_stratify_intercalate :: [Int] -> [[Int]] -> Property
-prop_stratify_intercalate s l =
-    s /= [] && l /= [] ==>
-    (stratify s' $ intercalate s' l') == l'
+prop_stratify_intercalate :: Int -> [Int] -> [Int] -> [[Int]] -> Property
+prop_stratify_intercalate s ss ls lss =
+    forAll lss' $ \lss'' -> forAll ss' $ \ss'' ->
+      (stratify ss'' $ intercalate ss'' lss'' == lss'')
     where
-      l' = map (map abs) l
-      s'
-          | concat l' == [] = s
-          | otherwise = map ((+ (maximum . concat $ l')) . (+ 1) . abs) s
+      lss' = map (map abs) (ls : lss)
+      ss'
+          | concat lss' == [] = (s : ss)
+          | otherwise = map ((+ (maximum . concat $ lss')) . (+ 1) . abs) 
+                            (s : ss)
 
 tests :: [(String, IO ())]
-tests = [("intercalate.stratify/id", test prop_intercalate_stratify),
-         ("stratify.intercalate/id", test prop_stratify_intercalate)]
-         
-         
+tests = [("intercalate.stratify/id", quickCheck prop_intercalate_stratify)]
+--         ("stratify.intercalate/id", run prop_stratify_intercalate)]
