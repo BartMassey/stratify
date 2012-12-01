@@ -11,7 +11,7 @@ import Test.QuickCheck
 import Stratify
 
 main :: IO ()
-main = mapM_ (\(s,a) -> printf "%-25s: " s >> a) tests
+main = mapM_ (\(s,a) -> printf "%25s: " s >> a) tests
  
 --- to ensure that the tests are meaningful, we embed
 --- some number of occurrences of s in l before we start
@@ -44,15 +44,14 @@ prop_intercalate_stratify s l =
 ---      elements of concat l, which is unnecessarily strong.
 prop_stratify_intercalate :: Int -> [Int] -> [Int] -> [[Int]] -> Property
 prop_stratify_intercalate s ss ls lss =
-    forAll lss' $ \lss'' -> forAll ss' $ \ss'' ->
-      (stratify ss'' $ intercalate ss'' lss'' == lss'')
-    where
-      lss' = map (map abs) (ls : lss)
-      ss'
-          | concat lss' == [] = (s : ss)
-          | otherwise = map ((+ (maximum . concat $ lss')) . (+ 1) . abs) 
-                            (s : ss)
-
+  property $ stratify ss' (intercalate ss' lss') == lss'
+  where
+    lss' = map (map abs) (ls : lss) 
+    ss'
+      | concat lss' == [] = (s : ss)
+      | otherwise = map ((+ (maximum . concat $ lss')) . (+ 1) . abs) 
+                    (s : ss)
+    
 tests :: [(String, IO ())]
-tests = [("intercalate.stratify/id", quickCheck prop_intercalate_stratify)]
---         ("stratify.intercalate/id", run prop_stratify_intercalate)]
+tests = [("intercalate.stratify/id", quickCheck prop_intercalate_stratify),
+         ("stratify.intercalate/id", quickCheck prop_stratify_intercalate)]

@@ -11,7 +11,7 @@ HCFLAGS = -O -Wall
 .hs.o:
 	$(HC) $(HCFLAGS) --make $*.hs
 
-StratifyTests: Stratify.o
+StratifyTests: Stratify.o StratifyTests.o
 	$(HC) $(HCFLAGS) --make StratifyTests.hs
 
 clean:
